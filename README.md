@@ -1,2 +1,2 @@
 # Mod2Bac
-A Python Tkinter GUI application for converting Modbus RTU/Bacnet MSTP to Bacnet/IP
+A Python3 Tkinter GUI application on Raspberry Pi for converting Modbus RTU/Bacnet MSTP to Bacnet/IP
