@@ -8,6 +8,8 @@ from bacpypes.primitivedata import CharacterString
 
 import time
 
+objects = []
+
 class BAC0_Converter():
 
     analog_value_num = 0
@@ -20,27 +22,36 @@ class BAC0_Converter():
         self.instance_number = instance_number
         self.obj_name = obj_name
 
-    def start_device(self):
+    def start_device(self,init_port):
         self.device = BAC0.lite(
             ip=self.ip,
             deviceId=self.instance_number,
             localObjName=self.obj_name,
-            port=47809
+            port=init_port
             )
 
     def build_analog(self,input_device,input_dev_point):
+        global objects
         self.input_device = input_device
         self.input_dev_point = input_dev_point
         register_object_type(AnalogValueCmdObject, vendor_id=842)
         av_object = AnalogValueCmdObject(
             objectIdentifier=("analogValue",BAC0_Converter.analog_value_num),
             objectName=self.input_dev_point,
-            presentValue=0,
+            presentValue=666,
             description=CharacterString(f"imported from {self.input_device}: {self.input_dev_point} "))
         BAC0_Converter.analog_value_num += 1
         BAC0_Converter.analog_value_list.append(av_object)
         self.device.this_application.add_object(av_object)
         return av_object
+    
+    def update_analogs(self,name,value):
+        global objects
+        av = self.device.this_application.get_object_name(name)
+        if av:
+            av.presentValue = value
+            print(f"AV present Value: {av.presentValue}")
+            
 
     def build_binary(self,input_device,input_dev_point):
         self.input_device = input_device
@@ -57,7 +68,7 @@ class BAC0_Converter():
         return bv_object
 
 def start():
-    Toast = BAC0_Converter('192.168.1.149/24',7001,'MACBOOK')
+    Toast = BAC0_Converter('192.168.1.151/24',7002,'Pi')
     Toast.start_device()
     Toast.build_analog('modbus_dev_1','register_1')
     Toast.build_analog('modbus_dev_1','register_2')
